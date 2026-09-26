@@ -1,0 +1,1 @@
+export function createGitWorkflow(projectId:string){return{branch:"feature/project-"+projectId,pullRequestRequired:true,testsRequired:true,protectedMain:true};}
