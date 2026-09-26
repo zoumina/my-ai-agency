@@ -1,0 +1,3 @@
+export interface ResearchSource { url:string; title:string; facts:Record<string,string>; confidence:number; collectedAt:string }
+export interface ResearchResult { companyId:string; sources:ResearchSource[]; verifiedFacts:Record<string,string>; confidence:number }
+export class ResearchEngine { async research(companyId:string,sources:ResearchSource[]):Promise<ResearchResult>{ const verifiedFacts:Record<string,string>={}; for(const s of sources) for(const [k,v] of Object.entries(s.facts)) if(!(k in verifiedFacts)||s.confidence>0.8) verifiedFacts[k]=v; return {companyId,sources,verifiedFacts,confidence:sources.length?sources.reduce((a,s)=>a+s.confidence,0)/sources.length:0}; } }
