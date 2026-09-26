@@ -1,0 +1,2 @@
+export interface GmailAdapter{send(input:{to:string;subject:string;body:string}):Promise<{providerId:string}>;listReplies():Promise<unknown[]>}
+export function createGmailAdapter():GmailAdapter{ return {async send(){throw new Error("Gmail adapter not configured.");},async listReplies(){return[]}} }
