@@ -1,0 +1,2 @@
+export interface ContactCandidate {name:string;role:string;publicContact?:string;sourceUrl:string;confidence:number}
+export function selectDecisionMaker(candidates:ContactCandidate[]){return [...candidates].filter(c=>c.confidence>=.75).sort((a,b)=>b.confidence-a.confidence)[0];}
