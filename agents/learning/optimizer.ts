@@ -1,0 +1,2 @@
+export interface Experiment{name:string;baseline:number;candidate:number;sampleSize:number}
+export function evaluateExperiment(e:Experiment){return{improvement:e.candidate-e.baseline,action:e.sampleSize<30?"collect-more-data":e.candidate>e.baseline?"consider-rollout":"keep-baseline"};}
