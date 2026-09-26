@@ -1,0 +1,2 @@
+export interface SearchPolicy{maxSourcesPerCompany:number;publicSourcesOnly:boolean;respectRobotsAndTerms:boolean}
+export const defaultSearchPolicy:SearchPolicy={maxSourcesPerCompany:12,publicSourcesOnly:true,respectRobotsAndTerms:true};
