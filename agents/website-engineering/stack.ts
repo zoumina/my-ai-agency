@@ -1,0 +1,1 @@
+export function chooseStack(){return{frontend:"Next.js + TypeScript",backend:"Node.js/TypeScript",database:"PostgreSQL",hosting:"Managed cloud selected per project",rationale:["Strong ecosystem","Performance","Scalability","Autonomous CI/CD"]};}
