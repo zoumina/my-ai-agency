@@ -1,5 +1,6 @@
 export interface GmailMessage{to:string;subject:string;body:string;providerId?:string}
-export interface GmailAdapter{send(input:GmailMessage):Promise<{providerId:string}>;listReplies():Promise<unknown[]>}
+export interface GmailReply{id:string;threadId?:string;from?:string;to?:string;subject?:string;snippet?:string;internalDate?:string}
+export interface GmailAdapter{send(input:GmailMessage):Promise<{providerId:string}>;listReplies():Promise<GmailReply[]>}
 
 type GmailTokenResponse={access_token:string;expires_in:number};
 export function createGmailAdapter():GmailAdapter{
@@ -32,9 +33,19 @@ export function createGmailAdapter():GmailAdapter{
   async listReplies(){
    if(!user)throw new Error("GMAIL_USER is required.");
    const token=await accessToken();
-   const r=await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages?q=is:unread",{headers:{Authorization:"Bearer "+token}});
-   if(!r.ok)throw new Error("Gmail list failed: "+r.status);
-   return await r.json();
+   const list=await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages?q=is:unread",{headers:{Authorization:"Bearer "+token}});
+   if(!list.ok)throw new Error("Gmail list failed: "+list.status);
+   const data=await list.json() as {messages?:Array<{id:string;threadId?:string}>};
+   const messages=data.messages??[];
+   const replies:GmailReply[]=[];
+   for(const m of messages.slice(0,50)){
+    const r=await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/"+m.id+"?format=metadata&metadataHeaders=From&metadataHeaders=To&metadataHeaders=Subject&metadataHeaders=Date",{headers:{Authorization:"Bearer "+token}});
+    if(!r.ok)continue;
+    const d=await r.json() as {id:string;threadId?:string;snippet?:string;internalDate?:string;payload?:{headers?:Array<{name:string;value:string}>}};
+    const headers=Object.fromEntries((d.payload?.headers??[]).map(h=>[h.name.toLowerCase(),h.value]));
+    replies.push({id:d.id,threadId:d.threadId,from:headers.from,to:headers.to,subject:headers.subject,snippet:d.snippet,internalDate:d.internalDate});
+   }
+   return replies;
   }
  };
 }
