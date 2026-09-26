@@ -1,0 +1,2 @@
+export interface MonitorResult{uptime:boolean;performance:boolean;errors:number;security:boolean}
+export function shouldRecover(r:MonitorResult){return !r.uptime||!r.performance||!r.security||r.errors>0}
