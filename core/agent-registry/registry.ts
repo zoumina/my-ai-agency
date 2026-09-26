@@ -1,0 +1,2 @@
+import type {AgentDefinition,AgentName} from "../agents/types.js";
+export class AgentRegistry{private readonly map=new Map<AgentName,AgentDefinition>();register(d:AgentDefinition){this.map.set(d.name,d)}get(name:AgentName){return this.map.get(name)}list(){return[...this.map.values()]}}
