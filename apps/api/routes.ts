@@ -1,0 +1,1 @@
+export const routes={health:"GET /health",companies:"GET/POST /companies",leads:"GET /leads",approvals:"GET/POST /approvals",workflows:"GET /workflows",projects:"GET/POST /projects",reports:"GET /reports",emergencyStop:"POST /control/emergency-stop"} as const;
