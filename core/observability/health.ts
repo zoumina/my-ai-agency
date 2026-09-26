@@ -1,0 +1,2 @@
+export interface HealthCheck{name:string;ok:boolean;latencyMs:number;details?:string}
+export function aggregateHealth(checks:HealthCheck[]){return{status:checks.every(c=>c.ok)?"healthy":"degraded",checks};}
