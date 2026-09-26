@@ -1,0 +1,1 @@
+export class GlobalSuppression{private readonly blocked=new Map<string,{date:string;reason:string}>();suppress(key:string,reason:string){this.blocked.set(key,{date:new Date().toISOString(),reason})}isSuppressed(key:string){return this.blocked.has(key)}get(key:string){return this.blocked.get(key)}}
