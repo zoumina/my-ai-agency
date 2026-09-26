@@ -1,1 +1,9 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AI Agency Command Center</title><style>body{font-family:system-ui;margin:0;background:#0b1020;color:#eef}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;padding:24px}.card{background:#151c33;border:1px solid #2a3557;border-radius:16px;padding:20px}button{padding:10px 14px;border:0;border-radius:10px;cursor:pointer}</style></head><body><main class="grid"><div class="card"><h1>AI Agency</h1><p>Command Center foundation</p></div><div class="card"><h2>Leads</h2><p id="leads">0</p></div><div class="card"><h2>Approvals</h2><p id="approvals">0</p></div><div class="card"><h2>Projects</h2><p id="projects">0</p></div><div class="card"><h2>System</h2><p id="system">Healthy</p></div></main></body></html>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AI Agency Command Center</title>
+<style>body{font-family:system-ui;margin:0;background:#0b1020;color:#eef}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;padding:24px}.card{background:#151c33;border:1px solid #2a3557;border-radius:16px;padding:20px}button{padding:10px 14px;border:0;border-radius:10px;cursor:pointer;margin-right:8px}#system{font-weight:700}</style></head>
+<body><main class="grid">
+<div class="card"><h1>AI Agency</h1><p>Command Center</p><button onclick="stopAgency()">Emergency Stop</button><button onclick="resumeAgency()">Resume</button></div>
+<div class="card"><h2>System</h2><p id="system">Loading…</p></div>
+<div class="card"><h2>Autonomy</h2><p id="autonomy">Loading…</p></div>
+<div class="card"><h2>Control</h2><p>Outbound email approval remains required by default.</p></div>
+</main><script src="/dashboard.js"></script></body></html>
