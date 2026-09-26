@@ -1,0 +1,2 @@
+# Operations
+Continuous workflows are event-driven and scheduled. Quality gates prevent low-quality lead substitution. Suppression is global. External communication is governed. Website changes use branches, tests and rollback controls. Incidents trigger bounded recovery and escalation. Client maintenance subscriptions are not part of the default commercial service.
