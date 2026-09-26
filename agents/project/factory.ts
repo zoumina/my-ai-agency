@@ -1,0 +1,1 @@
+export function createProject(companyId:string,requirements:string[]){return{projectId:crypto.randomUUID(),companyId,requirements,tasks:["Validate requirements","Create UX/UI plan","Implement website","Run automated tests","Security/performance review","Prepare deployment"]};}
