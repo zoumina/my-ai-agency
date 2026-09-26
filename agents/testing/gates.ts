@@ -1,0 +1,1 @@
+export function evaluateGates(checks:{name:string;passed:boolean}[]){return{passed:checks.every(c=>c.passed),checks:checks.map(c=>c.name),failures:checks.filter(c=>!c.passed).map(c=>c.name)};}
