@@ -1,0 +1,1 @@
+export interface Company360{companyId:string;identity:Record<string,string>;research:Record<string,unknown>;opportunities:Record<string,unknown>;contacts:unknown[];communications:unknown[];projects:unknown[];timeline:{at:string;event:string}[]}
