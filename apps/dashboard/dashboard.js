@@ -1,0 +1,1 @@
+async function load(){const r=await fetch("/health");const d=await r.json();document.querySelector("#system").textContent=d.status}load().catch(()=>document.querySelector("#system").textContent="Unavailable");
