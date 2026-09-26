@@ -3,6 +3,7 @@ import {readFile} from "node:fs/promises";
 import {join} from "node:path";
 import {routes} from "./routes.js";
 import {AgencyRuntime} from "../../core/orchestrator/agency.js";
+import {createGmailAdapter} from "../../integrations/gmail/adapter.js";
 
 const runtime=new AgencyRuntime();
 const routeMap:Record<string,string>=Object.fromEntries(Object.values(routes).flatMap(value=>{
@@ -10,6 +11,7 @@ const routeMap:Record<string,string>=Object.fromEntries(Object.values(routes).fl
   return (methods??"").split("/").map(method=>[method+" "+path,value]);
 }));
 
+const readJson=async(req:import("node:http").IncomingMessage)=>{let body="";for await(const chunk of req)body+=chunk;return body?JSON.parse(body):{}};
 const json=(res:import("node:http").ServerResponse,status:number,data:unknown)=>{
   res.setHeader("content-type","application/json; charset=utf-8");
   res.writeHead(status);res.end(JSON.stringify(data));
@@ -46,6 +48,21 @@ const server=createServer(async(req,res)=>{
     const result=action==="approve"?runtime.approvals.approve(id):runtime.approvals.reject(id);
     if(!result){json(res,404,{error:"Approval not found or already decided"});return;}
     json(res,200,result);return;
+  }
+
+  if(method==="POST" && /^\\/approvals\\/[^/]+\\/send$/.test(path)){
+    const [,approvalId]=path.split("/");
+    const approval=runtime.approvals.get(approvalId);
+    if(!approval||approval.status!=="approved"||approval.consumedAt){json(res,409,{error:"Approval is not available for sending"});return;}
+    const input=await readJson(req) as {companyId:string;to:string;subject:string;body:string};
+    if(!input.companyId||!input.to||!input.subject||!input.body){json(res,400,{error:"companyId, to, subject and body are required"});return;}
+    const decision=runtime.governance.decide("outbound-email:"+input.companyId,"medium","approval");
+    if(!decision.allowed){json(res,403,{error:decision.reason});return;}
+    try{
+      const sent=await createGmailAdapter().send({to:input.to,subject:input.subject,body:input.body});
+      runtime.approvals.markConsumed(approvalId);
+      json(res,200,{ok:true,providerId:sent.providerId,approvalId});return;
+    }catch(error){json(res,502,{error:error instanceof Error?error.message:"Gmail send failed"});return;}
   }
 
   const route=routeMap[method+" "+path];
