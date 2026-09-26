@@ -5,9 +5,13 @@ import {routes} from "./routes.js";
 import {AgencyRuntime} from "../../core/orchestrator/agency.js";
 import {createGmailAdapter} from "../../integrations/gmail/adapter.js";
 import {SchedulerRunner} from "../../core/scheduler/runner.js";
+import {PostgresProjectStore} from "../../core/projects/store.js";
+import {ProjectLifecycle} from "../../agents/project/lifecycle.js";
 
 const runtime=new AgencyRuntime();
 const gmail=()=>createGmailAdapter();
+const projects=()=>new PostgresProjectStore();
+const lifecycle=new ProjectLifecycle(runtime);
 const scheduler=new SchedulerRunner({
   "reply-sync":async()=>{if(!process.env.GMAIL_CLIENT_ID||!process.env.GMAIL_CLIENT_SECRET||!process.env.GMAIL_REFRESH_TOKEN||!process.env.GMAIL_USER)return;for(const reply of await gmail().listReplies())await runtime.events.publish({id:crypto.randomUUID(),type:"reply.received",occurredAt:new Date().toISOString(),actor:"gmail-sync",payload:reply});},
   "health-monitor":async()=>{if(runtime.control.emergencyStop)console.warn("[health] agency is stopped");}
@@ -52,6 +56,18 @@ const server=createServer(async(req,res)=>{
   }
   if(method==="GET" && path==="/control/state"){json(res,200,runtime.control);return;}
   if(method==="GET" && path==="/approvals"){json(res,200,runtime.approvals.list());return;}
+  if(method==="GET" && path==="/projects"){
+    try{const store=projects();json(res,200,await store.list());await store.close();}catch(error){json(res,503,{error:error instanceof Error?error.message:"Database unavailable"});}return;
+  }
+  if(method==="POST" && path==="/projects"){
+    try{
+      const input=await readJson(req) as {companyId:string;requirements:string[]};
+      if(!input.companyId||!Array.isArray(input.requirements)||input.requirements.length===0){json(res,400,{error:"companyId and non-empty requirements are required"});return;}
+      const prepared=await lifecycle.prepare(input.companyId,input.requirements);
+      const store=projects();const saved=await store.create(input.companyId,input.requirements);await store.close();
+      json(res,201,{project:saved,plan:prepared});return;
+    }catch(error){json(res,500,{error:error instanceof Error?error.message:"Project creation failed"});return;}
+  }
   if((method==="POST") && /^\/approvals\/[^/]+\/(approve|reject)$/.test(path)){
     const [,id,action]=path.split("/");
     const result=action==="approve"?runtime.approvals.approve(id):runtime.approvals.reject(id);
