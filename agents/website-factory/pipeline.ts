@@ -1,0 +1,2 @@
+export interface WebsitePipeline{steps:string[]}
+export function websitePipeline():WebsitePipeline{return{steps:["requirements","information-architecture","ux-ui","implementation","accessibility","performance","security","cross-browser","build","preview","approval-gate","deployment","smoke-test"]};}
