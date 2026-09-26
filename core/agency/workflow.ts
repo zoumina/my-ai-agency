@@ -1,23 +1,22 @@
 import {AgencyRuntime} from "../orchestrator/agency.js";
+import type {WorkflowContext} from "../orchestrator/types.js";
+
 export function createAgencyWorkflow(runtime:AgencyRuntime){
- return [
-  {id:"market-intelligence",run:async()=>{}},
-  {id:"research",run:async()=>{}},
-  {id:"verification",run:async()=>{}},
-  {id:"opportunity-score",run:async()=>{}},
-  {id:"decision-maker",run:async()=>{}},
-  {id:"company-memory",run:async()=>{}},
-  {id:"outreach-draft",run:async()=>{}},
-  {id:"governance",run:async()=>{}},
-  {id:"conversation",run:async()=>{}},
-  {id:"pricing-proposal",run:async()=>{}},
-  {id:"negotiation",run:async()=>{}},
-  {id:"project-factory",run:async()=>{}},
-  {id:"website-factory",run:async()=>{}},
-  {id:"testing",run:async()=>{}},
-  {id:"deployment",run:async()=>{}},
-  {id:"monitoring",run:async()=>{}},
-  {id:"reporting",run:async()=>{}},
-  {id:"learning",run:async()=>{}}
- ].map(s=>({id:s.id,run:async()=>{await s.run();}}));
+  const ids=[
+    "market-intelligence","research","verification","opportunity-score",
+    "decision-maker","company-memory","outreach-draft","governance",
+    "conversation","pricing-proposal","negotiation","project-factory",
+    "website-factory","testing","deployment","monitoring","reporting","learning"
+  ];
+  return ids.map(id=>({
+    id,
+    run:async(context:WorkflowContext)=>{
+      if(runtime.control.emergencyStop) throw new Error("Emergency stop is active.");
+      if(id==="governance"){
+        const decision=runtime.governance.decide("workflow."+context.workflowId,"medium","orchestrator");
+        if(!decision.allowed) throw new Error(decision.reason);
+      }
+      runtime.events.publish({type:"workflow.step",payload:{workflowId:context.workflowId,step:id,at:new Date().toISOString()}});
+    }
+  }));
 }
