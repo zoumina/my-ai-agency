@@ -18,7 +18,8 @@ CREATE TABLE IF NOT EXISTS audit_log (
 );
 CREATE TABLE IF NOT EXISTS approvals (
  id TEXT PRIMARY KEY, action TEXT NOT NULL, risk TEXT NOT NULL, status TEXT NOT NULL,
- created_at TIMESTAMPTZ NOT NULL, decided_at TIMESTAMPTZ
+ created_at TIMESTAMPTZ NOT NULL, decided_at TIMESTAMPTZ, consumed_at TIMESTAMPTZ,
+ payload JSONB
 );
 CREATE TABLE IF NOT EXISTS projects (
  id TEXT PRIMARY KEY, company_id TEXT NOT NULL, status TEXT NOT NULL,
