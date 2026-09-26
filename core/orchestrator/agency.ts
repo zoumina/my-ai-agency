@@ -1,0 +1,2 @@
+import {EventBus} from "../events/bus.js"; import {GovernanceEngine} from "../governance/engine.js"; import {WorkflowEngine} from "./engine.js";
+export class AgencyRuntime{readonly events=new EventBus();readonly workflows=new WorkflowEngine();readonly governance=new GovernanceEngine({maxAutonomousRisk:"medium",requireApprovalForOutboundEmail:true,emergencyStop:false});}
