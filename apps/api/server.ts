@@ -7,6 +7,7 @@ import {createGmailAdapter} from "../../integrations/gmail/adapter.js";
 import {SchedulerRunner} from "../../core/scheduler/runner.js";
 import {PostgresProjectStore} from "../../core/projects/store.js";
 import {ProjectLifecycle} from "../../agents/project/lifecycle.js";
+import {PostgresMessageStore} from "../../core/messages/store.js";
 
 const runtime=new AgencyRuntime();
 const gmail=()=>createGmailAdapter();
@@ -24,7 +25,7 @@ const routeMap:Record<string,string>=Object.fromEntries(Object.values(routes).fl
   return (methods??"").split("/").map(method=>[method+" "+path,value]);
 }));
 
-const readJson=async(req:import("node:http").IncomingMessage)=>{let body="";for await(const chunk of req)body+=chunk;return body?JSON.parse(body):{}};
+const readJson=async(req:import("node:http").IncomingMessage)=>{let body="";for await(const chunk of req)body+=chunk;return body?JSON.parse(body):{};};
 const json=(res:import("node:http").ServerResponse,status:number,data:unknown)=>{
   res.setHeader("content-type","application/json; charset=utf-8");
   res.writeHead(status);res.end(JSON.stringify(data));
@@ -79,13 +80,19 @@ const server=createServer(async(req,res)=>{
     const [,approvalId]=path.split("/");
     const approval=runtime.approvals.get(approvalId);
     if(!approval||approval.status!=="approved"||approval.consumedAt){json(res,409,{error:"Approval is not available for sending"});return;}
-    const input=await readJson(req) as {companyId:string;to:string;subject:string;body:string};
+    if(runtime.control.emergencyStop){json(res,403,{error:"Emergency stop is active."});return;}
+    let input:{companyId:string;to:string;subject:string;body:string};
+    try{input=await readJson(req) as {companyId:string;to:string;subject:string;body:string};}catch{json(res,400,{error:"Invalid JSON body"});return;}
     if(!input.companyId||!input.to||!input.subject||!input.body){json(res,400,{error:"companyId, to, subject and body are required"});return;}
+    if(approval.action!=="outbound-email:"+input.companyId){json(res,403,{error:"Approval does not match company."});return;}
+    if(!approval.payload||approval.payload.to!==input.to||approval.payload.subject!==input.subject||approval.payload.body!==input.body){json(res,403,{error:"Email payload does not match the approved message."});return;}
     const decision=runtime.governance.decide("outbound-email:"+input.companyId,"medium","approval");
     if(!decision.allowed){json(res,403,{error:decision.reason});return;}
     try{
       const sent=await createGmailAdapter().send({to:input.to,subject:input.subject,body:input.body});
       runtime.approvals.markConsumed(approvalId);
+      if(process.env.DATABASE_URL){try{const store=new PostgresMessageStore();await store.save({companyId:input.companyId,to:input.to,subject:input.subject,body:input.body,providerId:sent.providerId});await store.close();}catch(error){console.error("[messages] outbound persistence failed",error);}}
+      await runtime.events.publish({id:crypto.randomUUID(),type:"email.sent",occurredAt:new Date().toISOString(),actor:"approval",companyId:input.companyId,payload:{providerId:sent.providerId}});
       json(res,200,{ok:true,providerId:sent.providerId,approvalId});return;
     }catch(error){json(res,502,{error:error instanceof Error?error.message:"Gmail send failed"});return;}
   }
