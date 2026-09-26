@@ -50,7 +50,7 @@ const server=createServer(async(req,res)=>{
     json(res,200,result);return;
   }
 
-  if(method==="POST" && /^\\/approvals\\/[^/]+\\/send$/.test(path)){
+  if(method==="POST" && /^\/approvals\/[^/]+\/send$/.test(path)){
     const [,approvalId]=path.split("/");
     const approval=runtime.approvals.get(approvalId);
     if(!approval||approval.status!=="approved"||approval.consumedAt){json(res,409,{error:"Approval is not available for sending"});return;}
