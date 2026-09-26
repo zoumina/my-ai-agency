@@ -1,0 +1,5 @@
+-- Initial persistent model. Apply to PostgreSQL in deployment.
+CREATE TABLE IF NOT EXISTS approvals(id TEXT PRIMARY KEY,action TEXT NOT NULL,risk TEXT NOT NULL,status TEXT NOT NULL,created_at TIMESTAMPTZ NOT NULL,decided_at TIMESTAMPTZ);
+CREATE TABLE IF NOT EXISTS projects(id TEXT PRIMARY KEY,company_id TEXT NOT NULL,status TEXT NOT NULL,requirements JSONB NOT NULL DEFAULT '[]',created_at TIMESTAMPTZ NOT NULL,updated_at TIMESTAMPTZ NOT NULL);
+CREATE TABLE IF NOT EXISTS leads(id TEXT PRIMARY KEY,company_id TEXT NOT NULL,score INTEGER NOT NULL,status TEXT NOT NULL,contact JSONB,created_at TIMESTAMPTZ NOT NULL);
+CREATE TABLE IF NOT EXISTS messages(id TEXT PRIMARY KEY,company_id TEXT NOT NULL,direction TEXT NOT NULL,subject TEXT,body TEXT,provider_id TEXT,created_at TIMESTAMPTZ NOT NULL);
