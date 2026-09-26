@@ -9,7 +9,7 @@ import {SchedulerRunner} from "../../core/scheduler/runner.js";
 const runtime=new AgencyRuntime();
 const gmail=()=>createGmailAdapter();
 const scheduler=new SchedulerRunner({
-  "reply-sync":async()=>{for(const reply of await gmail().listReplies())await runtime.events.publish({id:crypto.randomUUID(),type:"reply.received",occurredAt:new Date().toISOString(),actor:"gmail-sync",payload:reply});},
+  "reply-sync":async()=>{if(!process.env.GMAIL_CLIENT_ID||!process.env.GMAIL_CLIENT_SECRET||!process.env.GMAIL_REFRESH_TOKEN||!process.env.GMAIL_USER)return;for(const reply of await gmail().listReplies())await runtime.events.publish({id:crypto.randomUUID(),type:"reply.received",occurredAt:new Date().toISOString(),actor:"gmail-sync",payload:reply});},
   "health-monitor":async()=>{if(runtime.control.emergencyStop)console.warn("[health] agency is stopped");}
 });
 scheduler.start();
