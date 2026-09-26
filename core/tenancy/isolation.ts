@@ -1,0 +1,2 @@
+export interface TenantContext{tenantId:string;projectId?:string;actorId:string}
+export function assertTenantAccess(resourceTenantId:string,ctx:TenantContext){if(resourceTenantId!==ctx.tenantId)throw new Error("Cross-tenant access denied.");}
