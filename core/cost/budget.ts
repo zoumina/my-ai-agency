@@ -1,0 +1,2 @@
+export interface CostPolicy{dailyLimit:number;monthlyLimit:number;requireApprovalAbove:number}
+export class CostGuard{constructor(private readonly policy:CostPolicy){} authorize(amount:number,dailyUsed:number,monthlyUsed:number){return amount+dailyUsed<=this.policy.dailyLimit&&amount+monthlyUsed<=this.policy.monthlyLimit&&amount<=this.policy.requireApprovalAbove?{allowed:true,approval:false}:{allowed:false,approval:true}}}
