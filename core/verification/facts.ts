@@ -1,0 +1,2 @@
+export interface FactEvidence{fact:string;source:string;confidence:number}
+export function verifyFact(evidence:FactEvidence[],threshold=.75){const strong=evidence.filter(e=>e.confidence>=threshold);return{verified:strong.length>=2,sources:strong.map(e=>e.source),confidence:strong.length?Math.max(...strong.map(e=>e.confidence)):0}}
