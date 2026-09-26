@@ -1,0 +1,1 @@
+export const backupPolicy={frequency:"daily",retentionDays:30,encrypted:true,restoreTestsPerMonth:1};
