@@ -1,0 +1,2 @@
+export type ConversationState="new"|"discovery"|"proposal"|"negotiation"|"agreement"|"closed"|"suppressed";
+export function nextConversationState(state:ConversationState,signal:"interest"|"question"|"price"|"agree"|"optout"|"close"):ConversationState{if(signal==="optout")return"suppressed";if(signal==="agree")return"agreement";if(signal==="close")return"closed";if(signal==="price")return"negotiation";if(signal==="interest")return"proposal";return state==="new"?"discovery":state;}
