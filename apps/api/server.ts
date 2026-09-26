@@ -40,6 +40,13 @@ const server=createServer(async(req,res)=>{
     json(res,200,{ok:true,state:runtime.control});return;
   }
   if(method==="GET" && path==="/control/state"){json(res,200,runtime.control);return;}
+  if(method==="GET" && path==="/approvals"){json(res,200,runtime.approvals.list());return;}
+  if((method==="POST") && /^\/approvals\/[^/]+\/(approve|reject)$/.test(path)){
+    const [,id,action]=path.split("/");
+    const result=action==="approve"?runtime.approvals.approve(id):runtime.approvals.reject(id);
+    if(!result){json(res,404,{error:"Approval not found or already decided"});return;}
+    json(res,200,result);return;
+  }
 
   const route=routeMap[method+" "+path];
   json(res,route?200:404,route?{route}:{error:"Not found"});
