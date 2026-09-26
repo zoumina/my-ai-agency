@@ -1,0 +1,2 @@
+export interface MetricPoint{name:string;value:number;at:string;tags?:Record<string,string>}
+export class MetricsStore{private points:MetricPoint[]=[];record(p:MetricPoint){this.points.push(p)}query(name:string){return this.points.filter(p=>p.name===name)}}
