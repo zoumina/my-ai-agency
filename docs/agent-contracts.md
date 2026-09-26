@@ -1,0 +1,2 @@
+# Agent Contracts
+Every agent must declare identity, permissions, risk level, input/output schema, timeout, retry limit and audit behavior. Agents cannot bypass the Orchestrator or Governance Engine. External side effects require explicit tool permissions.
