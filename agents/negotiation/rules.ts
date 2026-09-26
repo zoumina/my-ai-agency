@@ -1,0 +1,2 @@
+export interface NegotiationPolicy {minimumPrice:number;targetPrice:number;maxDiscountPercent:number}
+export function counterOffer(requested:number,p:NegotiationPolicy){return Math.max(p.minimumPrice,p.targetPrice*(1-p.maxDiscountPercent/100),requested);}
