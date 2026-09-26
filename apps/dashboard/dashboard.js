@@ -1,6 +1,7 @@
 async function refresh(){const r=await fetch("/health");const d=await r.json();document.querySelector("#system").textContent=d.status;document.querySelector("#autonomy").textContent=d.autonomousExecutionEnabled?"Enabled":"Disabled"}
 async function stopAgency(){await fetch("/control/emergency-stop",{method:"POST"});await refresh()}
 async function resumeAgency(){await fetch("/control/resume",{method:"POST"});await refresh()}
-refresh().catch(()=>{document.querySelector("#system").textContent="Unavailable"});
-async function loadApprovals(){const r=await fetch("/approvals");const items=await r.json();document.querySelector("#approvals").textContent=items.length?items.map(x=>`${x.action} — ${x.status}`).join("\n"):"None"}
-setInterval(()=>{refresh().catch(()=>{});loadApprovals().catch(()=>{})},10000);loadApprovals().catch(()=>{});
+async function loadApprovals(){const r=await fetch("/approvals");const items=await r.json();const el=document.querySelector("#approvals");el.innerHTML="";if(!items.length){el.textContent="None";return}for(const x of items){const row=document.createElement("div");row.style.marginBottom="10px";const label=document.createElement("span");label.textContent=x.action+" — "+x.status;row.appendChild(label);if(x.status==="pending"){for(const action of ["approve","reject"]){const b=document.createElement("button");b.textContent=action[0].toUpperCase()+action.slice(1);b.onclick=async()=>{await fetch("/approvals/"+encodeURIComponent(x.id)+"/"+action,{method:"POST"});await loadApprovals()};row.appendChild(b)}}el.appendChild(row)}}
+async function loadProjects(){const el=document.querySelector("#projects");try{const r=await fetch("/projects");if(!r.ok){el.textContent="Database unavailable";return}const items=await r.json();el.textContent=items.length?items.map(x=>x.id+" — "+x.status).join("\n"):"None"}catch{el.textContent="Unavailable"}}
+function boot(){refresh().catch(()=>{document.querySelector("#system").textContent="Unavailable"});loadApprovals().catch(()=>{});loadProjects().catch(()=>{})}
+setInterval(()=>{refresh().catch(()=>{});loadApprovals().catch(()=>{});loadProjects().catch(()=>{})},10000);boot();
