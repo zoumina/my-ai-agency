@@ -1,0 +1,2 @@
+export interface PricingInput {pages:number;complexity:number;integrations:number;aiFeatures:number;urgency:number}
+export function calculatePrice(i:PricingInput){const price=Math.round(500+i.pages*80+i.complexity*12+i.integrations*120+i.aiFeatures*180+i.urgency*50);return {price,currency:"EUR",rationale:["Price scales with scope, complexity, integrations, AI features and urgency."]};}
