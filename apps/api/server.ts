@@ -4,8 +4,17 @@ import {join} from "node:path";
 import {routes} from "./routes.js";
 import {AgencyRuntime} from "../../core/orchestrator/agency.js";
 import {createGmailAdapter} from "../../integrations/gmail/adapter.js";
+import {SchedulerRunner} from "../../core/scheduler/runner.js";
 
 const runtime=new AgencyRuntime();
+const gmail=()=>createGmailAdapter();
+const scheduler=new SchedulerRunner({
+  "reply-sync":async()=>{for(const reply of await gmail().listReplies())await runtime.events.publish({id:crypto.randomUUID(),type:"reply.received",occurredAt:new Date().toISOString(),actor:"gmail-sync",payload:reply});},
+  "health-monitor":async()=>{if(runtime.control.emergencyStop)console.warn("[health] agency is stopped");}
+});
+scheduler.start();
+process.on("SIGTERM",()=>{scheduler.stop();process.exit(0);});
+process.on("SIGINT",()=>{scheduler.stop();process.exit(0);});
 const routeMap:Record<string,string>=Object.fromEntries(Object.values(routes).flatMap(value=>{
   const [methods,path]=value.split(" ");
   return (methods??"").split("/").map(method=>[method+" "+path,value]);
