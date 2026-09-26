@@ -1,0 +1,2 @@
+export interface DeploymentAdapter{deploy(projectId:string):Promise<{url:string;deploymentId:string}>;rollback(deploymentId:string):Promise<void>}
+export function createDeploymentAdapter():DeploymentAdapter{throw new Error("Deployment adapter not configured.");}
