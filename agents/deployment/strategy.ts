@@ -1,0 +1,1 @@
+export function createDeploymentPlan(){return{platform:"Selected by deployment policy",environment:"production",rollbackEnabled:true,checks:["build","tests","security","smoke test"]};}
