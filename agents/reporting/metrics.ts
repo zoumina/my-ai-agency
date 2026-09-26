@@ -1,0 +1,2 @@
+export interface Metrics{leads:number;qualified:number;drafts:number;sent:number;replies:number;deals:number;projects:number}
+export function conversionRates(m:Metrics){return{qualification:m.leads?m.qualified/m.leads:0,reply:m.sent?m.replies/m.sent:0,close:m.replies?m.deals/m.replies:0};}
