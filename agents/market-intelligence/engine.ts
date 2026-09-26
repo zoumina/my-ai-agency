@@ -1,0 +1,2 @@
+export interface MarketSignal{country:string;industry:string;need:number;competition:number;purchasingPower:number}
+export function rankMarkets(signals:MarketSignal[]){return [...signals].sort((a,b)=>(b.need+b.purchasingPower-b.competition)-(a.need+a.purchasingPower-a.competition));}
