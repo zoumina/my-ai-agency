@@ -92,7 +92,7 @@ const server=createServer(async(req,res)=>{
       const sent=await createGmailAdapter().send({to:input.to,subject:input.subject,body:input.body});
       runtime.approvals.markConsumed(approvalId);
       if(process.env.DATABASE_URL){try{const store=new PostgresMessageStore();await store.save({companyId:input.companyId,to:input.to,subject:input.subject,body:input.body,providerId:sent.providerId});await store.close();}catch(error){console.error("[messages] outbound persistence failed",error);}}
-      await runtime.events.publish({id:crypto.randomUUID(),type:"email.sent",occurredAt:new Date().toISOString(),actor:"approval",companyId:input.companyId,payload:{providerId:sent.providerId}});
+      await runtime.events.publish({id:crypto.randomUUID(),type:"outreach.sent",occurredAt:new Date().toISOString(),actor:"approval",companyId:input.companyId,payload:{providerId:sent.providerId}});
       json(res,200,{ok:true,providerId:sent.providerId,approvalId});return;
     }catch(error){json(res,502,{error:error instanceof Error?error.message:"Gmail send failed"});return;}
   }
