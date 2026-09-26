@@ -3,11 +3,12 @@
   "private": true,
   "version": "0.1.0",
   "description": "Autonomous AI-powered B2B web agency platform",
+  "type": "module",
   "scripts": {
     "typecheck": "tsc --noEmit",
     "build": "tsc",
-    "test": "node --test",
-    "lint": "eslint ."
+    "test": "node --test dist/tests/**/*.test.js",
+    "lint": "tsc --noEmit"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
