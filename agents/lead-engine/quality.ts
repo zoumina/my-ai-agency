@@ -1,0 +1,2 @@
+export interface LeadCandidate{companyId:string;score:number;confidence:number;suppressed:boolean;hasReliableContact:boolean}
+export function qualifyLead(l:LeadCandidate){return !l.suppressed&&l.hasReliableContact&&l.confidence>=.75&&l.score>=60}
