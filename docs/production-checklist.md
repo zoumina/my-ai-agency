@@ -1,0 +1,13 @@
+# Production Checklist
+- Configure Claude provider and model access.
+- Configure Gmail OAuth with least privilege.
+- Configure GitHub permissions with protected main.
+- Provision PostgreSQL.
+- Configure secret manager.
+- Configure deployment provider.
+- Configure domain and TLS.
+- Configure backups and monitoring.
+- Run typecheck and tests.
+- Review governance policies.
+- Keep outbound email approval enabled until validated.
+- Verify emergency stop.
