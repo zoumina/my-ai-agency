@@ -6,3 +6,6 @@ CREATE INDEX IF NOT EXISTS idx_runtime_companies_domain ON companies(domain);
 CREATE INDEX IF NOT EXISTS idx_runtime_companies_suppressed ON companies(suppressed);
 CREATE INDEX IF NOT EXISTS idx_runtime_leads_score ON leads(score DESC);
 CREATE INDEX IF NOT EXISTS idx_runtime_approvals_status ON approvals(status);
+
+ALTER TABLE approvals ADD COLUMN IF NOT EXISTS consumed_at TIMESTAMPTZ;
+ALTER TABLE approvals ADD COLUMN IF NOT EXISTS payload JSONB;
