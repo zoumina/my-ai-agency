@@ -5,14 +5,25 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_URL: postgresql://agency:${POSTGRES_PASSWORD}@postgres:5432/ai_agency
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      CLAUDE_MODEL: ${CLAUDE_MODEL}
+    depends_on:
+      postgres:
+        condition: service_healthy
   postgres:
     image: postgres:16-alpine
     environment:
       POSTGRES_DB: ai_agency
       POSTGRES_USER: agency
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes: [agency_pg:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL","pg_isready -U agency -d ai_agency"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - agency_pg:/var/lib/postgresql/data
+    ports: ["5432:5432"]
 volumes:
   agency_pg:
