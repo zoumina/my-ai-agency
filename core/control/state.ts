@@ -1,0 +1,2 @@
+export interface ControlState { emergencyStop:boolean; outboundEmailApprovalRequired:boolean; autonomousExecutionEnabled:boolean; }
+export const defaultControlState:ControlState={emergencyStop:false,outboundEmailApprovalRequired:true,autonomousExecutionEnabled:true};
