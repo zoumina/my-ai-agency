@@ -1,0 +1,18 @@
+services:
+  api:
+    build: .
+    ports: ["3000:3000"]
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: ${DATABASE_URL}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ai_agency
+      POSTGRES_USER: agency
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes: [agency_pg:/var/lib/postgresql/data]
+volumes:
+  agency_pg:
