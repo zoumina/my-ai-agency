@@ -18,7 +18,7 @@ export class LeadPipeline{
   const stored=await this.leads.upsert(candidate);
   if(!qualifyLead(candidate))return {status:"rejected" as const,stored,research,opportunity};
   const email=contact?.publicContact?draftEmail({companyName:c.companyName,recipientName:contact.name,detectedProblem:opportunity.reasons.join(" ")||"an opportunity for improvement",proposedService:"a tailored website and digital improvement"}):undefined;
-  const approval=email?this.runtime.approvals.create("outbound-email:"+c.companyId,"medium",{companyId:c.companyId,to:contact?.publicContact??"",subject:email?.subject??"",body:email?.body??""}):undefined;
+  const approval=email?await this.runtime.approvals.create("outbound-email:"+c.companyId,"medium",{companyId:c.companyId,to:contact?.publicContact??"",subject:email?.subject??"",body:email?.body??""}):undefined;
   return {status:"approval_required" as const,stored,research,opportunity,contact,email,approval};
  }
 }
