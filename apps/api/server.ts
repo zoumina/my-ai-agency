@@ -56,7 +56,7 @@ const server=createServer(async(req,res)=>{
     json(res,200,{ok:true,state:runtime.control});return;
   }
   if(method==="GET" && path==="/control/state"){json(res,200,runtime.control);return;}
-  if(method==="GET" && path==="/approvals"){json(res,200,runtime.approvals.list());return;}
+  if(method==="GET" && path==="/approvals"){try{json(res,200,await runtime.approvals.list());}catch(error){json(res,503,{error:error instanceof Error?error.message:"Approval store unavailable"});}return;}
   if(method==="GET" && path==="/projects"){
     try{const store=projects();json(res,200,await store.list());await store.close();}catch(error){json(res,503,{error:error instanceof Error?error.message:"Database unavailable"});}return;
   }
@@ -71,14 +71,14 @@ const server=createServer(async(req,res)=>{
   }
   if((method==="POST") && /^\/approvals\/[^/]+\/(approve|reject)$/.test(path)){
     const [,id,action]=path.split("/");
-    const result=action==="approve"?runtime.approvals.approve(id):runtime.approvals.reject(id);
+    const result=action==="approve"?await runtime.approvals.approve(id):await runtime.approvals.reject(id);
     if(!result){json(res,404,{error:"Approval not found or already decided"});return;}
     json(res,200,result);return;
   }
 
   if(method==="POST" && /^\/approvals\/[^/]+\/send$/.test(path)){
     const [,approvalId]=path.split("/");
-    const approval=runtime.approvals.get(approvalId);
+    const approval=await runtime.approvals.get(approvalId);
     if(!approval||approval.status!=="approved"||approval.consumedAt){json(res,409,{error:"Approval is not available for sending"});return;}
     if(runtime.control.emergencyStop){json(res,403,{error:"Emergency stop is active."});return;}
     let input:{companyId:string;to:string;subject:string;body:string};
@@ -90,7 +90,7 @@ const server=createServer(async(req,res)=>{
     if(!decision.allowed){json(res,403,{error:decision.reason});return;}
     try{
       const sent=await createGmailAdapter().send({to:input.to,subject:input.subject,body:input.body});
-      runtime.approvals.markConsumed(approvalId);
+      await runtime.approvals.markConsumed(approvalId);
       if(process.env.DATABASE_URL){try{const store=new PostgresMessageStore();await store.save({companyId:input.companyId,to:input.to,subject:input.subject,body:input.body,providerId:sent.providerId});await store.close();}catch(error){console.error("[messages] outbound persistence failed",error);}}
       await runtime.events.publish({id:crypto.randomUUID(),type:"outreach.sent",occurredAt:new Date().toISOString(),actor:"approval",companyId:input.companyId,payload:{providerId:sent.providerId}});
       json(res,200,{ok:true,providerId:sent.providerId,approvalId});return;
